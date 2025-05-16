@@ -140,6 +140,26 @@ class Board:
         for piece in pieces:
             board_format[b][piece.row][piece.col] = None
 
+    def has_valid_moves(self, color):
+        for b in range(3):
+            for row in range(ROWS):
+                for col in range(COLS):
+                    piece = self.get_piece(row, col, b)
+                    if piece and piece.color == color:
+                        moves = self.get_valid_moves(piece, b)
+                        if moves:
+                            return True
+        return False
+
+    def has_pieces(self, color):
+        for b in range(3):
+            for row in range(ROWS):
+                for col in range(COLS):
+                    piece = self.get_piece(row, col, b)
+                    if piece and piece.color == color:
+                        return True
+        return False
+
     def get_valid_moves(self, piece, b):
         moves = {}
         if piece.k2:
@@ -239,6 +259,18 @@ class Game:
 
         return False
 
+    def display_centered_message(self, message, duration=3000):
+        font = pygame.font.SysFont(None, 72)
+        BRIGHT_GREEN = (0, 255, 0)
+        text = font.render(message, True, BRIGHT_GREEN)
+        text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+
+        # Draw final frame
+        self.board.draw(self.screen, self.visible_board)
+        self.screen.blit(text, text_rect)
+        pygame.display.update()
+        pygame.time.wait(duration)
+
     def draw_valid_moves(self, moves):
         for move in moves:
             row, col = move
@@ -248,11 +280,28 @@ class Game:
     def advance_turn(self):
         self.valid_moves = {}
         self.selected = None
-        self.sub_turn += 1
-        if self.sub_turn > 2:
+
+        # After a move, check if the current player has any valid moves left for the remaining sub-turns
+        if self.sub_turn < 2:
+            self.sub_turn += 1
+            if not self.board.has_valid_moves(self.turn):
+                winner = "White" if self.turn == RED else "Red"
+                self.display_centered_message(f"{winner} wins!", 3000)
+                pygame.quit()
+                sys.exit()
+
+        else:
+            # Completed 3 moves, switch turn
             self.sub_turn = 0
-            self.turn = WHITE if self.turn == RED else RED
             self.k2_moved = False
+            self.turn = WHITE if self.turn == RED else RED
+
+            # Before new player starts, check if THEY have any valid moves
+            if not self.board.has_valid_moves(self.turn) or not self.board.has_pieces(self.turn):
+                winner = "White" if self.turn == RED else "Red"
+                self.display_centered_message(f"{winner} wins!", 3000)
+                pygame.quit()
+                sys.exit()
 
 
 def main():
