@@ -1,7 +1,7 @@
 # 3D Checkers Game
 
 ## Overview
-This is a fully original 3D implementation of **Checkers**, written in Python with Pygame.  
+This is a fully original somewhat 3D implementation of **Checkers**, written in Python with Pygame.  
 The game features **three stacked boards**, advanced **king and k2 mechanics**, and turn-based logic for a challenging and interactive experience.
 
 I developed this project to explore **multi-layer game mechanics, complex movement rules, and event-driven programming** in Python.
